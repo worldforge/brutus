@@ -1,0 +1,416 @@
+html
+{
+	font-family:"Helvetica";
+	background-color:#000;
+	padding:0px;
+	margin:0px;
+}
+body
+{
+	padding:0px;
+	margin:0px;
+}
+#root
+{
+	display:block;
+	clear:both;
+	overflow:hidden;
+	width:90%;
+	min-width:840px;
+	margin:auto;
+	padding:0px;
+	background-color:#fff;
+}
+#header
+{
+	display:block;
+	clear:both;
+	overflow:hidden;
+}
+#header h1, #header h1 a
+{
+	font-size:18px;
+	line-height:26px;
+	text-decoration:none;
+}
+#header em
+{
+	font-size:12px;
+	font-style:plain;
+}
+#header div.headerlabel, #header div.headerform
+{
+	float:left;
+	clear:none;
+	overflow:hidden;
+}
+#header div.headerlabel
+{
+	width:23%;
+	padding-left:1%;
+	min-width:190px;
+}
+#header div.headerform
+{
+	width:76%;
+	padding:10px 0px 0px 0px;
+}
+#header div.headerform form
+{
+	display:block;
+	float:left;
+	clear:none;
+	width:25%;
+	min-width:150px;
+}
+#header div.headerform div#searches
+{
+	display:block;
+	float:left;
+	clear:none;
+	width:70%;
+}
+
+#header a.searchterm
+{
+	display:block;
+	float:left;
+	clear:none;
+	height:22px;
+	line-height:22px;
+	padding:0px 2px 0px 2px;
+	margin:1px;
+	border:1px solid #ccc;
+	background-color:#eee;
+	font-size:11px;
+	color:#039;
+	text-decoration:none;
+}
+
+#header a.searchterm:hover
+{
+	background-color:#369;
+	color:#fff;
+	border:1px solid #000;
+}
+
+#header a.channel
+{
+	background-color:#111;
+	color:#6c0;
+}
+#header a.channel:hover
+{
+	background-color:#333;
+	color:#eee;
+}
+
+#header div#searches
+{
+	display:block;
+	clear:both;
+	overflow:hidden;
+}
+#header div#searches.setHeight
+{
+	height:51px;
+}
+
+#menu
+{
+	display:block;
+	clear:both;
+	overflow:hidden;
+}
+#menu ul
+{
+	display:block;
+	clear:both;
+	list-style-type:none;
+	padding:0px;
+}
+#menu ul li
+{
+	display:block;
+	float:left;
+	clear:none;
+	overflow:hidden;
+}
+#menu ul li a
+{
+	display:block;
+	clear:both;
+	height:32px;
+	line-height:32px;
+	text-decoration:none;
+	padding:0px 10px 0px 10px;
+}
+#menu ul li div
+{
+	display:block;
+	clear:both;
+	overflow:hidden;
+	height:32px;
+	line-height:32px;
+	font-size:12px;
+}
+#menu ul li form
+{
+	display:block;
+	float:left;
+	clear:none;
+	overflow:hidden;
+	padding:4px 0px 0px 0px;
+	margin:0px;
+}
+#menu ul li form input
+{
+	display:block;
+	float:left;
+	clear:none;
+	width:80px;
+	margin:0px 2px 0px 2px;
+}
+#menu ul li form input.submit
+{
+	display:block;
+	float:left;
+	clear:none;
+	width:32px;
+}
+
+
+#body
+{
+	display:block;
+	clear:both;
+	overflow:hidden;
+	width:90%;
+	margin:0px 5% 0px 5%;
+	background-color:#eee;
+	min-height:400px;
+}
+div.results
+{
+	display:block;
+	clear:both;
+	overflow:hidden;
+}
+div.results table
+{
+	width:100%;
+}
+div.results table tr
+{
+}
+div.results table tr th
+{
+}
+div.results table tr td
+{
+	font-size: 11px;
+	padding: 1px;
+	background-color: #fff;
+	line-height: 22px;
+}
+div.results table tr td div.disclosure
+{
+	z-index:100;
+	width:100%;
+	height:100px;
+}
+div.results table tr td div.disclosure div.close
+{
+	display:block;
+	clear:both;
+	overflow:hidden;
+	color:#000;
+	background-color:#bcd;
+	border:1px dotted #89a;
+	padding:4px;
+	text-decoration:none;
+}
+div.results table tr td div.disclosure div.close a
+{
+	display:block;
+	clear:both;
+	overflow:hidden;
+}
+div.results table tr td div.disclosure div.item
+{
+	display:block;
+	clear:both;
+	overflow:scroll;
+	width:100%;
+	margin:0px 0px 10px 0px;
+	padding:10px;
+}
+
+
+div.results table tr td.headline
+{
+	font-size:12px;
+	line-height:30px;
+	padding:5px;
+	background-color:#6C0;
+	color:#000;
+}
+div.results table tr td.time
+{
+	width:5%;
+}
+div.results table tr td.user
+{
+	width:10%;
+}
+div.results table tr td.content
+{
+	width:75%;
+	line-height:18px;
+}
+div.results table tr td a.trans
+{
+	display:block;
+	clear:both;
+	overflow:hidden;
+	color:#000;
+	background-color:#bcd;
+	border:1px dotted #89a;
+	padding:4px;
+	text-decoration:none;
+}
+div.results table tr td.content em
+{
+	background-color: #ffd;
+	padding: 4px;
+	font-size:12px;
+	line-height:18px;
+	font-style: normal;
+}
+div.results table tr td.content a.trans em
+{
+	background-color:#def;
+	padding:1px;
+}
+
+div.results table tr.append td
+{
+	background-color:#9cf;
+}
+div.results table tr.selected td
+{
+	background-color:#fc9;
+}
+div.account
+{
+	display:block;
+	clear:both;
+	overflow:hidden;
+	min-height:250px;
+	min-width:250px;
+	background-color:#efefef;
+	border:1px solid #999;
+	padding:50px;
+}
+div.account form
+{
+	padding:0px;
+	margin:0px;
+}
+div.account form div.input
+{
+	display:block;
+	clear:both;
+	overflow:hidden;
+	height:42px;
+	line-height:42px;
+	margin:4px 0px 4px 0px;
+	padding:4px;
+	background-color:#ddd;
+	border:1px solid #999;
+}
+div.account form div.input label
+{
+	display:block;
+	float:left;
+	clear:none;
+	width:140px;
+}
+div.account form input, div.account form select
+{
+	font-size:16px;
+	line-height:28px;
+}
+#body h1
+{
+	font-size:16px;
+	line-height:28px;
+}
+#body h2
+{
+	font-size:14px;
+	line-height:28px;
+}
+div.section h1
+{
+	margin:20px 20px 0px 20px;
+	padding:0px;
+	cursor:pointer;
+	color:#678;
+	border-bottom:1px dotted #999;
+}
+div.section h1:hover
+{
+	color:#234;
+}
+div.section div.container
+{
+	background-color:#ddd;
+	border:2px solid #999;
+	min-height:100px;
+	margin:5px 20px 20px 20px;
+	padding:10px;
+}
+div.section div.container span.label
+{
+	display:block;
+	float:left;
+	clear:none;
+	overflow:hidden;
+	width:15%;
+}
+div.section div.container span.value
+{
+	display:block;
+	float:left;
+	clear:right;
+	overflow:hidden;
+	width:85%;
+}
+div.section div.container table
+{
+	width:100%;
+}
+div.section div.container table tr td
+{
+	font-size:12px;
+	line-height:22px;
+	background-color:#eee;
+	padding:2px;
+}
+div.termlist
+{
+	display:block;
+	float:left;
+	clear:none;
+	overflow:hidden;
+}
+
+#footer
+{
+	display:block;
+	clear:both;
+	overflow:hidden;
+	height:90px;
+	background-color:#39c;
+}
