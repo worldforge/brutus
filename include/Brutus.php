@@ -1,5 +1,7 @@
 <?php
 
+$GLOBALS['DSN'] = "mysql://brutus:br3ndarul3s@localhost/brutus";
+
 if( !class_exists("Brutus") )
 {
 
@@ -162,10 +164,10 @@ class Brutus
  			
 			// 5 Most popular searches.
 			$statement = "select distinct(data) as Term, sum(runcount) as Count from searches group by data order by sum(runcount) DESC limit 5;";
-			$mostpopular = $this->database->db->query($statement);
+			$mostpopular = $this->database->query($statement);
 			if( $mostpopular )
 			{
-				$mostpopular_result = $mostpopular->fetchAll(SQLITE_ASSOC);
+				$mostpopular_result = $this->database->fetchAll($mostpopular);//->fetchAll(SQLITE_ASSOC);
 			}
 			$renderable = new Renderable(getcwd()."/templates/termlist.html.tpl");
 			$renderable->smarty->assign("results",$mostpopular_result);
@@ -176,10 +178,10 @@ class Brutus
 			
 			// 5 Most recent searches.
 			$statement = "select distinct(data) as Term, lastrun as Date from searches group by data order by lastrun DESC limit 5;";
-			$mostrecent = $this->database->db->query($statement);
+			$mostrecent = $this->database->query($statement);
 			if( $mostrecent )
 			{
-				$mostrecent_result = $mostrecent->fetchAll(SQLITE_ASSOC);
+				$mostrecent_result = $this->database->fetchAll($mostrecent);//->fetchAll(SQLITE_ASSOC);
 			}
 			$renderable = new Renderable(getcwd()."/templates/termlist.html.tpl");
 			$renderable->smarty->assign("results",$mostrecent_result);
@@ -191,10 +193,10 @@ class Brutus
 			if( $_SESSION['id'] != "" )
 			{
 				$statement = "select * from messages where content like '".sqlite_escape_string ( $_SESSION['user'] ).":%' order by stamp DESC limit 20;";
-				$messages = $this->database->db->query($statement);
+				$messages = $this->database->query($statement);
 				if( $messages )
 				{
-					$messages_result = $messages->fetchAll(SQLITE_ASSOC);
+					$messages_result = $this->database->fetchAll($messages);//->fetchAll(SQLITE_ASSOC);
 				}
 				$renderable = new Renderable(getcwd()."/templates/searchresults.html.tpl");
 				$renderable->smarty->assign("results",$messages_result);
@@ -207,10 +209,10 @@ class Brutus
 						
 			// Last 20 question marks.
 			$statement = "select * from messages where content like '%?' order by stamp DESC limit 20;";
-			$questions = $this->database->db->query($statement);
+			$questions = $this->database->query($statement);
 			if( $questions )
 			{
-				$questions_result = $questions->fetchAll(SQLITE_ASSOC);
+				$questions_result = $this->database->fetchAll($questions);//->fetchAll(SQLITE_ASSOC);
 			}
 			$renderable = new Renderable(getcwd()."/templates/searchresults.html.tpl");
 			$renderable->smarty->assign("results",$questions_result);
@@ -225,13 +227,14 @@ class Brutus
 			$mostactive = $this->database->db->query($statement);
 			if( $mostactive )
 			{
-				$mostactive_result = $mostactive->fetch(SQLITE_ASSOC);
+				$mostactive_result = $this->database->fetchAll($mostactive);//->fetch(SQLITE_ASSOC);
+				$mostactive_result = array_shift($mostactive_result);
 			}
 			$statement = "select * from messages where channel = '".sqlite_escape_string ( $mostactive_result['channelName'] )."' order by stamp DESC limit 20;";
-			$mostactivelines = $this->database->db->query($statement);
+			$mostactivelines = $this->database->query($statement);
 			if( $mostactivelines )
 			{
-				$mostactivelines_result = $mostactivelines->fetchAll(SQLITE_ASSOC);
+				$mostactivelines_result = $this->database->fetchAll($mostactivelines);//->fetchAll(SQLITE_ASSOC);
 			}
 			$renderable = new Renderable(getcwd()."/templates/searchresults.html.tpl");
 			$renderable->smarty->assign("results",$mostactivelines_result);
@@ -838,9 +841,11 @@ class Brutus
  		$channels = $this->database->selectDistinct("channel","messages");
 		foreach($channels as $id=>$row)
 		{
-			$stored_searches[ucfirst ( $row['(channel)'] )]['term'] = $row['(channel)'];
-			$stored_searches[ucfirst ( $row['(channel)'] )]['type'] = "recentChannel";
-			$stored_searches[ucfirst ( $row['(channel)'] )]['alert'] = "Show recent posts from &ldquo;".ucfirst($row['(channel)']).".&rdquo;";
+			$keys = array_keys($row);
+			$channel = $row[$keys[0]];
+			$stored_searches[ucfirst ( $channel )]['term'] = $channel;
+			$stored_searches[ucfirst ( $channel )]['type'] = "recentChannel";
+			$stored_searches[ucfirst ( $channel )]['alert'] = "Show recent posts from &ldquo;".ucfirst($channel).".&rdquo;";
 		}
  	}
  	
@@ -918,9 +923,19 @@ class Brutus
 								print("\nParsing file $baseFileName.<br />\n");
 								$processedFiles = $processedFiles+1;
 								$this->parseLogData( $baseFileName );
-								if( $processedFiles >= 1 )
+								if( stristr($_SERVER['REQUEST_URI'],"ajax.php") )
 								{
-									return;
+									if( $processedFiles >= 2 )
+									{
+										return;
+									}
+								}
+								else
+								{
+									if( $processedFiles >= 500 )
+									{
+										return;
+									}
 								}
 							}
 						}

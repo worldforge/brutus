@@ -1,5 +1,7 @@
 <?php
 
+require_once('DB.php');
+
 class Database
 {
 	var $db;
@@ -8,15 +10,208 @@ class Database
 	var $lastQuery;
 	var $pendingActions;
 	
-	function Database($path="")
+	function __construct($path="")
 	{
 		$this->pendingActions = array();
-		if( !$this->db = new SQLiteDatabase($path) )
-		{
-			print("Cannot open database $path.");
-			die();
-		}
 		$this->executions = 0;
+		if( !isset($GLOBALS['DSN']) )
+		{
+			if( !$this->db = new SQLiteDatabase($path) )
+			{
+				print("Cannot open database $path.");
+				die();
+			}
+		}
+		elseif( stristr($GLOBALS['DSN'],"mysql") )
+		{
+			$options = array("persistent" => false,"autofree" => true);
+			$result = &DB::connect($GLOBALS['DSN'], $options);
+			if (DB::isError($result))
+			{
+				$notice = new Notice("Database Error", "Cannot connect to MySQL database.");
+				print $notice->Render();
+				var_dump($result);
+				die();
+			}
+			$this->db =& $result;
+			// Makes associative arrays, with the column names as the array keys
+			$this->db->setFetchMode(DB_FETCHMODE_ASSOC);
+			$this->db->query("SET NAMES 'utf8'");
+			$this->_dsn = $GLOBALS['DSN'];
+			
+			$tables =& $this->db->query("SHOW TABLES;");
+			if( DB::isError($result) )
+			{
+				$Notice = new Notice("Database Error","Cannot retrieve tables from database.");
+				print $Notice->Render();
+			}
+			if( $tables->numRows() == 0 )
+			{
+				// set up the fucking database... whew that as a lot more work than it should have been.
+				$this->setupMySQLDatabase();
+			}
+		}
+		return $this;
+	}
+	
+	/**
+	 * @function Database:SetupMySQLDatabase
+	 * @author tingham
+	 * @created 9/4/08 12:00 AM
+	 **/
+	function setupMySQLDatabase()
+	{
+		$tables = array();
+		$tables['messages'] = "CREATE TABLE messages (id INT NOT NULL AUTO_INCREMENT,\n".
+										  "stamp INT,\n".
+										  "channel TEXT,\n".
+										  "user TEXT,\n".
+										  "content TEXT,\n".
+										  "rating INT,\n".
+										  "PRIMARY KEY(id)".
+										  ") ENGINE=InnoDB DEFAULT CHARSET=utf8\n;";
+		$tables['searches'] = "CREATE TABLE searches (id INT NOT NULL AUTO_INCREMENT,\n".
+											"user INT,\n".
+											"data TEXT,\n".
+											"lastrun INT,\n".
+											"runcount INT,\n".
+											"active INT,\n".
+											"PRIMARY KEY(id)\n".
+											") ENGINE=InnoDB DEFAULT CHARSET=utf8\n;";
+		$tables['user'] = "CREATE TABLE user(\n".
+									   "id INT NOT NULL AUTO_INCREMENT,\n".
+									   "user TEXT,\n".
+									   "email TEXT,\n".
+									   "password TEXT,\n".
+									   "reference INT,\n".
+									   "settings TEXT,\n".
+									   "confirmed INT,\n".
+									   "PRIMARY KEY(id)\n".
+									   ") ENGINE=InnoDB DEFAULT CHARSET=utf8\n;";
+		$tables['meta'] = "CREATE TABLE meta(\n".
+									   "id INT NOT NULL AUTO_INCREMENT,\n".
+									   "message INT,\n".
+									   "owner INT,\n".
+									   "data TEXT,\n".
+									   "PRIMARY KEY(id)\n".
+									   ") ENGINE=InnoDB DEFAULT CHARSET=utf8\n;";
+		foreach($tables as $tableName=>$table)
+		{
+			$result =& $this->db->query($table);
+			if( DB::isError($result) )
+			{
+				$notice = new Notice("Database Error", "Error creating tables.");
+				print $notice->Render();
+				var_dump($result);
+			}
+		}
+	} 
+	
+	function fetchAll( $result )
+	{
+		$returnVal = array();		
+		if( stristr($GLOBALS['DSN'],"mysql") )
+		{
+			while($row = $result->fetchRow())
+			{
+				$returnVal[] = $row;
+			}
+		}
+		else
+		{
+			$returnVal = $query->fetchALL(SQLITE_ASSOC);
+		}
+		return $returnVal;
+	}
+	
+	function query( $statement )
+	{
+		$returnVal = false;
+		if( stristr($GLOBALS['DSN'],"mysql") )
+		{
+			$result =& $this->db->query($statement);
+			if( DB::isError($result) )
+			{
+				$notice = new Notice("Database Error","Error executing query.");
+				print $notice->Render();
+				var_dump($result);
+			}
+			else
+			{
+				$returnVal = $result;
+			}
+		}
+		else
+		{
+			$result = $this->db->query($statement);
+			if( !$result )
+			{
+				$returnVal = $result;
+			}
+			else
+			{
+				$notice = new Notice("Database Error","Error executing query.");
+				print $notice->Render();
+			}
+		}
+		return $returnVal;
+	}
+	
+	function execute( $statement )
+	{
+		$returnVal = false;
+		if( stristr($GLOBALS['DSN'],"mysql") )
+		{
+			$result =& $this->db->query($statement);
+			if( DB::isError($result) )
+			{
+				$notice = new Notice("Database Error","Error executing statement.");
+				print $notice->Render();
+				var_dump($result);
+			}
+			else
+			{
+				$returnVal = $result;
+			}
+		}
+		else
+		{
+			$result = $this->db->queryExec($statement);
+			if( !$result )
+			{
+				$returnVal = $result;
+			}
+			else
+			{
+				$notice = new Notice("Database Error","Error executing statement.");
+				print $notice->Render();
+			}
+		}
+		return $returnVal;
+	}
+	
+	function lastId($query)
+	{
+		if( stristr($GLOBALS['DSN'],"mysql") )
+		{
+			return $this->db->nextId()-1;
+		}
+		else
+		{
+			return $this->db->lastInsertId();
+		}
+	}
+	
+	function string($string)
+	{
+		if( stristr($GLOBALS['DSN'],"mysql") )
+		{
+			return addslashes($string);
+		}
+		else
+		{
+			return sqlite_escape_string ( $string );
+		}
 	}
 	
 	function insertMessage( $params )
@@ -25,9 +220,9 @@ class Database
 		{
 			$statement = "INSERT INTO messages (stamp,channel,user,content,rating) VALUES (?1,'?2','?3','?4',?5);";
 			$statement = str_replace('?1',$params['stamp'],$statement);
-			$statement = str_replace('?2',sqlite_escape_string($params['channel']),$statement);
-			$statement = str_replace('?3',sqlite_escape_string($params['user']),$statement);
-			$statement = str_replace('?4',sqlite_escape_string($params['content']),$statement );
+			$statement = str_replace('?2',$this->string($params['channel']),$statement);
+			$statement = str_replace('?3',$this->string($params['user']),$statement);
+			$statement = str_replace('?4',$this->string($params['content']),$statement );
 			$statement = str_replace('?5',1,$statement);
 			
 			$testForPrevious = array("explicit"=>true,
@@ -78,7 +273,7 @@ class Database
 		$sourceRow = array_shift($sourceRows);
 		
 		$statement = "select * from messages WHERE (channel = '".
-						sqlite_escape_string($sourceRow['channel']).
+						$this->string($sourceRow['channel']).
 						"' AND id >= ".
 						(($forId>5)?$forId-5:1).
 						" AND id <= ".
@@ -88,10 +283,10 @@ class Database
 		if( $this->db )
 		{
 			$this->lastQuery = $statement;
-			$query = $this->db->query($statement);
+			$query = $this->query($statement);
 			if( $query )
 			{
-				$result = $query->fetchAll(SQLITE_ASSOC);
+				$result = $this->fetchAll($query);
 				return $result;
 			}
 		}
@@ -101,14 +296,14 @@ class Database
 	
 	function selectDistinct( $field, $fromTable )
 	{
-		$statement = "SELECT DISTINCT($field) FROM $fromTable ORDER BY $field ASC;";
+		$statement = "SELECT DISTINCT($field) as $field FROM $fromTable ORDER BY $field ASC;";
 		if( $this->db )
 		{
 			$this->lastQuery = $statement;
-			$query = $this->db->query($statement);
+			$query = $this->query($statement);
 			if( $query )
 			{
-				$result = $query->fetchAll(SQLITE_ASSOC);
+				$result = $this->fetchAll($query);
 				return $result;
 			}
 		}
@@ -125,8 +320,8 @@ class Database
 		{
 			$statement = "INSERT INTO user (user,email,password,reference,settings,confirmed) VALUES ('?1','?2','?3',?4,'?5',?6);";
 			$statement = str_replace('?1',$params['user'],$statement);
-			$statement = str_replace('?2',sqlite_escape_string($params['email']),$statement);
-			$statement = str_replace('?3',sqlite_escape_string(crypt($params['password'],'BT')),$statement);
+			$statement = str_replace('?2',$this->string($params['email']),$statement);
+			$statement = str_replace('?3',$this->string(crypt($params['password'],'BT')),$statement);
 			$statement = str_replace('?4',$params['reference'],$statement );
 			$statement = str_replace('?5',$params['settings'],$statement);
 			$statement = str_replace('?6',$params['confirmed'],$statement);
@@ -145,11 +340,11 @@ class Database
 					$this->executions < $this->maxExecutionLimit )
 				{
 					//print $statement;
-					$result = $this->db->queryExec($statement);
+					$result = $this->execute($statement);
 					$this->executions = $this->executions + 1;
 					if( $result )
 					{
-						return $this->db->lastInsertRowid();
+						return $this->db->lastId();
 					}
 					else
 					{
@@ -185,7 +380,7 @@ class Database
 				isset($params['active']) )
 			{
 				$statement = "update searches set active = ".$params['active']." where id = ".$params['id'].";";
-				return $this->db->queryExec($statement);
+				return $this->execute($statement);
 			}
 		}
 	}
@@ -197,11 +392,12 @@ class Database
 	 **/
 	function FetchTotalSearchPopularity( $term )
 	{
-		$statement = "select sum(runcount) as totalPopularity from searches where data = '".sqlite_escape_string ( $term )."' group by data;";		
-		$query = $this->db->query($statement);
+		$statement = "select sum(runcount) as totalPopularity from searches where data = '".$this->string ( $term )."' group by data;";		
+		$query = $this->query($statement);
 		if( $query )
 		{
-			$result = $query->fetch(SQLITE_ASSOC);
+			$result = $this->fetchAll($query);
+			$result = array_shift($result);
 			return $result['totalPopularity'];
 		}
 	}
@@ -235,11 +431,11 @@ class Database
 					$this->executions < $this->maxExecutionLimit )
 				{
 					//print $statement;
-					$result = $this->db->queryExec($statement);
+					$result = $this->execute($statement);
 					$this->executions = $this->executions + 1;
 					if( $result )
 					{
-						return $this->db->lastInsertRowid();
+						return $this->db->lastId();
 					}
 					else
 					{
@@ -258,11 +454,11 @@ class Database
 				if( $this->db &&
 					$this->executions < $this->maxExecutionLimit )
 				{
-					$result = $this->db->queryExec($statement);
+					$result = $this->execute($statement);
 					$this->executions = $this->executions + 1;
 					if( $result )
 					{
-						return $this->db->lastInsertRowid();
+						return $this->db->lastId();
 					}
 					else
 					{
@@ -287,10 +483,10 @@ class Database
 		if( $this->db )
 		{
 			$this->lastQuery = $statement;
-			$query = $this->db->query($statement);
+			$query = $this->query($statement);
 			if( $query )
 			{
-				$result = $query->fetchAll(SQLITE_ASSOC);
+				$result = $this->fetchAll($query);
 				return $result;
 			}
 		}
@@ -335,7 +531,7 @@ class Database
 					}
 					else
 					{
-						$sqlArray[] = "$field $comparisonOperator '$comparisonBuffer".sqlite_escape_string($value)."$comparisonBuffer'";	
+						$sqlArray[] = "$field $comparisonOperator '$comparisonBuffer".$this->string($value)."$comparisonBuffer'";	
 					}
 				}
 			}
@@ -357,10 +553,10 @@ class Database
 		if( $this->db )
 		{
 			$this->lastQuery = $statement;
-			$query = $this->db->query($statement);
+			$query = $this->query($statement);
 			if( $query )
 			{
-				$result = $query->fetchAll(SQLITE_ASSOC);
+				$result = $this->fetchAll($query);
 				return $result;
 			}
 		}
@@ -378,10 +574,10 @@ class Database
 		if( $this->db )
 		{
 			$this->lastQuery = $statement;
-			$query = $this->db->query($statement);
+			$query = $this->query($statement);
 			if( $query )
 			{
-				$result = $query->fetchAll(SQLITE_ASSOC);
+				$result = $this->fetchAll($query);
 				return $result;
 			}
 		}
@@ -403,7 +599,7 @@ class Database
 				if( $this->db )
 				{
 					$this->lastQuery = $statement;
-					$query = $this->db->queryExec($statement);
+					$query = $this->execute($statement);
 					return $query;
 				}
 			}
@@ -420,7 +616,7 @@ class Database
 				if( $this->db )
 				{
 					$this->lastQuery = $statement;
-					$query = $this->db->queryExec($statement);
+					$query = $this->execute($statement);
 					return $query;
 				}
 			}
@@ -438,10 +634,10 @@ class Database
 		if( $this->db )
 		{
 			$this->lastQuery = $statement;
-			$query = $this->db->query($statement);
+			$query = $this->query($statement);
 			if( $query )
 			{
-				$result = $query->fetchAll(SQLITE_ASSOC);
+				$result = $this->fetchAll($query);
 				return $result;
 			}
 		}
@@ -452,8 +648,18 @@ class Database
 	{
 		if( sizeOf($this->pendingActions) > 0 )
 		{
-			$statement = implode("\n",$this->pendingActions);
-			$this->db->queryExec( $statement );
+			if( stristr($GLOBALS['DSN'],'mysql') )
+			{
+				foreach($this->pendingActions as $action)
+				{
+					$this->execute($action);
+				}
+			}
+			else
+			{
+				$statement = implode("\n",$this->pendingActions);
+				$this->execute( $statement );
+			}
 		}
 	}
 }
