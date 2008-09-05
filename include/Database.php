@@ -190,7 +190,7 @@ class Database
 		return $returnVal;
 	}
 	
-	function lastId($query)
+	function lastId()
 	{
 		if( stristr($GLOBALS['DSN'],"mysql") )
 		{
@@ -435,7 +435,7 @@ class Database
 					$this->executions = $this->executions + 1;
 					if( $result )
 					{
-						return $this->db->lastId();
+						return $this->lastId();
 					}
 					else
 					{
@@ -458,7 +458,7 @@ class Database
 					$this->executions = $this->executions + 1;
 					if( $result )
 					{
-						return $this->db->lastId();
+						return $this->lastId();
 					}
 					else
 					{

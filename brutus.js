@@ -1,3 +1,5 @@
+var global_url_prefix = "http://kraken.local/brutus/";
+
 function initialize()
 {
 	if( document.location.href.indexOf("?") > -1 )
@@ -40,14 +42,14 @@ function initialize()
 function doYourPart()
 {
 	window.status = "Doing your part.";
-	var url = "http://ncinghams.homedns.org/brutus/stab.php";
+	var url = global_url_prefix+"stab.php";
 	var ajax = new Ajax.Request(url, {method:'get',onFailure:null,asynchronous:false});
 	var strAjaxResult = ajax.transport.responseText;
 	window.status = "Done doing your part, thanks a bunch! Have a great day.";
 }
 function submitAjaxSearchForm( aForm )
 {
-	var url = "http://ncinghams.homedns.org/brutus/ajax.php?verb=SearchResults&q="+aForm.q.value;
+	var url = global_url_prefix+"ajax.php?verb=SearchResults&q="+aForm.q.value;
 	var ajax = new Ajax.Request(url, {method:'get',
 									  onFailure:null,
 									  asynchronous:false}
@@ -79,7 +81,7 @@ function submitAjaxSearchForm( aForm )
 }
 function submitAjaxSearchFormExtended( aForm )
 {
-	var url = "http://ncinghams.homedns.org/brutus/ajax.php?verb=SearchResults&q="+aForm.q.value+"&type="+aForm.type.value;
+	var url = global_url_prefix+"ajax.php?verb=SearchResults&q="+aForm.q.value+"&type="+aForm.type.value;
 	var ajax = new Ajax.Request(url, {method:'get',
 									  onFailure:null,
 									  asynchronous:false}
@@ -123,11 +125,11 @@ function submitAjaxAccountForm(aForm)
 {
 	if( aForm.step.value == 1 )
 	{
-		var url = "http://ncinghams.homedns.org/brutus/ajax.php?verb=Account&step="+aForm.step.value+"&user="+aForm.user.value+"&email="+aForm.email.value+"&reference="+aForm.reference[aForm.reference.selectedIndex].value+"&password="+aForm.password.value;
+		var url = global_url_prefix+"ajax.php?verb=Account&step="+aForm.step.value+"&user="+aForm.user.value+"&email="+aForm.email.value+"&reference="+aForm.reference[aForm.reference.selectedIndex].value+"&password="+aForm.password.value;
 	}
 	else
 	{
-		var url = "http://ncinghams.homedns.org/brutus/ajax.php?verb=Account&step="+aForm.step.value+"&confirm="+aForm.confirm.value;
+		var url = global_url_prefix+"ajax.php?verb=Account&step="+aForm.step.value+"&confirm="+aForm.confirm.value;
 	}
 	var ajax = new Ajax.Request(url, {method:'get',
 									  onFailure:null,
@@ -155,7 +157,7 @@ function submitAjaxAccountForm(aForm)
 }
 function submitAjaxLoginForm( aForm )
 {
-	var url = "http://ncinghams.homedns.org/brutus/ajax.php?verb=Authenticate";
+	var url = global_url_prefix+"ajax.php?verb=Authenticate";
 	var params = {"user":aForm.user.value,"password":aForm.password.value};
 	var ajax = new Ajax.Request(url, {method:'post',
 									  onFailure:null,
@@ -199,7 +201,7 @@ function showDisclosedItem( anItem )
 function replaceStoredSearches()
 {
 	var searches = $('searches');
-	var url = "http://ncinghams.homedns.org/brutus/ajax.php?verb=RecallStoredSearches";
+	var url = global_url_prefix+"ajax.php?verb=RecallStoredSearches";
 	var ajax = new Ajax.Request(url, {method:'get',
 									  onFailure:null,
 									  asynchronous:false}
@@ -214,7 +216,7 @@ function expandMessageRow( rowId )
 	//replace the row that we clicked on with the rows from the database.
 	var id = rowId.split(".");
 	id = id[1];
-	var url = "http://ncinghams.homedns.org/brutus/ajax.php?verb=SurroundingRows&id="+id;
+	var url = global_url_prefix+"ajax.php?verb=SurroundingRows&id="+id;
 	var ajax = new Ajax.Request(url, {method:'get',
 									  onFailure:null,
 									  asynchronous:false}
@@ -245,7 +247,7 @@ function contractMessageRows(lastId)
 	
 	var id = lastId.split(".");
 	id = id[1];
-	var url = "http://ncinghams.homedns.org/brutus/ajax.php?verb=FetchMessageRow&id="+id;
+	var url = global_url_prefix+"ajax.php?verb=FetchMessageRow&id="+id;
 	var ajax = new Ajax.Request(url, {method:'get',
 									  onFailure:null,
 									  asynchronous:false}
@@ -255,7 +257,7 @@ function contractMessageRows(lastId)
 }
 function submitAjaxImportCookieSearches(id, scriptFunction)
 {
-	var url = "http://ncinghams.homedns.org/brutus/ajax.php?verb=ImportCookieSearches&id="+id;
+	var url = global_url_prefix+"ajax.php?verb=ImportCookieSearches&id="+id;
 	var ajax = new Ajax.Request(url, {method:'get',
 									  onFailure:null,
 									  asynchronous:false}
@@ -285,7 +287,7 @@ function submitAjaxModifySearchesForm(aForm, scriptFunction)
 			}
 		}
 	}
-	url = "http://ncinghams.homedns.org/brutus/ajax.php?verb=ModifySearches&enable="+checkboxValuesEnable.join(",")+"&disable="+checkboxValuesDisable.join(",");
+	url = global_url_prefix+"ajax.php?verb=ModifySearches&enable="+checkboxValuesEnable.join(",")+"&disable="+checkboxValuesDisable.join(",");
 	var ajax = new Ajax.Request(url, {method:'get',
 									  onFailure:null,
 									  asynchronous:false}
