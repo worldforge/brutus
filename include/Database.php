@@ -194,7 +194,7 @@ class Database
 	{
 		if( stristr($GLOBALS['DSN'],"mysql") )
 		{
-			return $this->db->nextId()-1;
+			return $this->db->nextId('id')-1;
 		}
 		else
 		{

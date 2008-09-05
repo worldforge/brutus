@@ -1,5 +1,3 @@
-var global_url_prefix = "http://kraken.local/brutus/";
-
 function initialize()
 {
 	if( document.location.href.indexOf("?") > -1 )
@@ -81,7 +79,10 @@ function submitAjaxSearchForm( aForm )
 }
 function submitAjaxSearchFormExtended( aForm )
 {
-	var url = global_url_prefix+"ajax.php?verb=SearchResults&q="+aForm.q.value+"&type="+aForm.type.value;
+	var url = global_url_prefix+"ajax.php?verb=SearchResults&q="+aForm.q.value+((aForm.type.value!='')?"&type="+aForm.type.value:"")+((aForm.lower.value!='')?"&lower="+aForm.lower.value:"")+((aForm.upper.value!='')?"&upper="+aForm.upper.value:"");
+	// alert(url);
+	// http://ncinghams.homedns.org/brutus/ajax.php?verb=SearchResults&q=ember&type=recentChannel
+	// http://ncinghams.homedns.org/brutus/ajax.php?verb=SearchResults&q=ember&type=recentChannel&lower=Jul 17, 2008&upper=Aug 21, 2008
 	var ajax = new Ajax.Request(url, {method:'get',
 									  onFailure:null,
 									  asynchronous:false}

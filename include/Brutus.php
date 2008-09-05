@@ -1,12 +1,11 @@
 <?php
 
-$GLOBALS['DSN'] = "mysql://brutus:br3ndarul3s@localhost/brutus";
-
 if( !class_exists("Brutus") )
 {
 
 session_start();
 
+require_once("brutus.config.php");
 require_once("Database.php");
 require_once("libs/Smarty.class.php");
 require_once("Notice.php");
@@ -108,6 +107,7 @@ class Brutus
 		
 		$this->renderable->assign("session_user",array("user"=>$_SESSION['user'],"email"=>$_SESSION['email'],"settings"=>unserialize ($_SESSION['settings']) ) );
 		$this->renderable->assign("stored_searches",$stored_searches);
+		$this->renderable->assign("globals",$GLOBALS);
  	}
  	
  	
@@ -544,10 +544,6 @@ class Brutus
  			switch( $step )
  			{
  				case 1:
- 					//print "User: $user\n";
- 					//print "Email: $email\n";
- 					//print "Reference: $reference\n";
- 					//print "Password: $password\n";
  					if( $user != "" &&
  						strpos ( $email, "@" ) > 0 &&
  						intval ( $reference ) > 0 &&
@@ -672,29 +668,57 @@ class Brutus
  	 **/
  	function SearchResults( $params )
  	{
+ 		$bStoreSearch = false;
  		if( is_array($params) )
  		{
  			if( isset($params['q']) )
  			{
+ 				$renderable = new Renderable(getcwd()."/templates/searchresults.html.tpl");
+ 				
  				if( isset($params['type']) )
  				{
  					switch ( $params['type'] )
  					{
  					    case "recentChannel":
- 					    	$onemonth = 31*24*60*60;
- 					    	$results = $this->database->select(
- 					    		array(
- 					    			'explicit'=>true,
- 					    			'all'=>true,
- 					    			'table'=>"messages",
- 					    			'order'=>"stamp ASC",
- 					    			'attributes'=> array('channel'=>$params['q'],
- 					    								 'stamp >='=>intval( time()-$onemonth )
- 					    								 )
- 					    			)
- 					    		);
+ 					    	$query = array('explicit'=>true,
+										   'all'=>true,
+										   'table'=>"messages",
+										   'order'=>"stamp ASC",
+										   'attributes'=> array('channel'=>$params['q']));
+ 					    	if( isset($params['lower']) )
+							{
+								$lower = strToTime(date('Y-m-01',strToTime($params['lower'])));
+							}
+							else
+							{
+								$lower = strToTime(date('Y-m-01	',time()-31*24*60*60));
+							}
+							if( isset($params['upper']) )
+							{
+								$upper = strToTime(date('Y-m-01',strToTime($params['upper'])));
+							}
+							else
+							{
+								$upper = time();
+							}
+							if( isset($lower) )
+							{
+								$query['attributes']['stamp >='] = intVal($lower);
+							}
+							if( isset($upper) )
+							{
+								$query['attributes']['stamp <='] = intVal($upper);
+							}
+							$results = $this->database->select($query);
+							$renderable->smarty->assign("lower",$lower);
+							$renderable->smarty->assign("upper",$upper);
+ 					    	$renderable->smarty->assign("showDateControls",true);
+ 					    	$renderable->smarty->assign("caption","Looking at &ldquo;".ucfirst($params['q'])."&rdquo; for ".date('F, Y',$lower)." thru ".date('F, Y',$upper));
  					        break;
 						case "recentUser":
+							$params['q'] = "user:".$params['q'];
+							$this->SearchResults($params);
+							return;
 							break;
  					    default:
  					        
@@ -702,12 +726,56 @@ class Brutus
  					}
  					
  				}
+ 				elseif( stristr($params['q'],"user:") )
+ 				{
+					$user = explode(":",$params['q']);
+					$user = $user[1];
+					$query = array(
+									  'explicit'=>true,
+									  'all'=>true,
+									  'table'=>"messages",
+									  'order'=>"stamp ASC",
+									  'attributes'=> array('user'=>$user));
+					if( isset($params['lower']) )
+					{
+						$lower = strToTime($params['lower']);
+					}
+					else
+					{
+	 					$lower = time()-31*24*60*60;
+ 					}
+ 					
+ 					if( isset($params['upper']) )
+ 					{
+ 						$upper = strToTime($params['upper']);
+ 					}
+ 					else
+ 					{
+ 						$upper = time();
+ 					}
+ 					
+ 					if( isset($lower) )
+ 					{
+						$query['attributes']['stamp >='] = intVal($lower);
+ 					}
+ 					
+ 					if( isset($upper) )
+ 					{
+ 						$query['attributes']['stamp <='] = intVal($upper);
+ 					} 					
+					
+					$results = $this->database->select($query);
+					$renderable->smarty->assign("lower",$lower);
+					$renderable->smarty->assign("upper",$upper);
+			    	$renderable->smarty->assign("showDateControls",true);
+ 					$renderable->smarty->assign("caption","Looking at User: &ldquo;".$user."&rdquo; for ".date('F, Y',$lower)." thru ".date('F, Y',$upper));
+ 				}
  				else
  				{
 	 				$results = $this->database->searchMessages($params['q']);
 	 			}
  				if( sizeOf($results) > 0 &&
- 					!isset($params['type']) ) //don't store alternative searches.
+ 					$bStoreSearch ) //don't store alternative searches.
  				{
  					if( $_SESSION['id'] == "" )
  					{
@@ -727,6 +795,11 @@ class Brutus
 							$stored_searches = array_reverse($stored_searches);
 						}
 						setcookie ( "stored_searches",implode(",",$stored_searches),time()+(24*60*60*30),"/",$_SERVER['SERVER_NAME'],FALSE,FALSE );
+						$this->database->InsertSearch(array("user"=>-1,
+														   "data"=>$params['q'],
+														   "lastrun"=>time(),
+														   "runcount"=>1,
+														   "active"=>1));
 					}
 					else
 					{
@@ -737,7 +810,6 @@ class Brutus
 														   "active"=>1));
 					}
  				}
- 				$renderable = new Renderable(getcwd()."/templates/searchresults.html.tpl");
  				$renderable->smarty->assign("results",$results);
  				$renderable->smarty->assign("showHeaders",true);
  				if( $params['type'] != "recentChannel" )

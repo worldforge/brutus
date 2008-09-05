@@ -8,6 +8,9 @@
 	<script type="text/javascript" src="/{$basedir}scriptaculous/prototype.js"></script>
 	<script type="text/javascript" src="/{$basedir}scriptaculous/scriptaculous.js"></script>
 	<script type="text/javascript" src="/{$basedir}brutus.js"></script>
+	<script type="text/javascript">
+	var global_url_prefix = "{$globals.AJAXPREFIX}";
+	</script>
 </head>
 <body onload="initialize();">
 <div id="root">
@@ -19,8 +22,10 @@
 		<div class="headerform">
 			<form id="searchform" action="/{$basedir}index.php" method="get" onsubmit="return submitAjaxSearchForm(this);">
 				<div class="input">
-					<input type="text" name="q" id="q" value="{if $q != ""}{$q}{else}Search{/if}" {literal}onfocus="if(this.value=='Search'){this.value='';}" onblur="if(this.value==''){this.value='Search';}"{/literal} /><br />
+					<input type="text" name="q" id="q" value="{if $q != ""}{$q}{else}Search{/if}" {literal}onfocus="if(this.value=='Search'){this.value='';$('lower').value='';$('upper').value='';}" onblur="if(this.value==''){this.value='Search';}"{/literal} /><br />
 					<input type="hidden" name="type" id="type" value="" />
+					<input type="hidden" name="lower" id="lower" value="" />
+					<input type="hidden" name="upper" id="upper" value="" />
 				</div>
 			</form>
 			{include file="storedsearches.html.tpl"}
