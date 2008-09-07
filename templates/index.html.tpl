@@ -4,6 +4,7 @@
 <head>
 	<title>{$appTitle} - {$verb}</title>
 	<meta name="generator" content="BBEdit 8.7" />
+	<meta name="robots" content="noindex, nofollow">
 	<link rel="stylesheet" type="text/css" href="/{$basedir}css/master.css" />
 	<script type="text/javascript" src="/{$basedir}scriptaculous/prototype.js"></script>
 	<script type="text/javascript" src="/{$basedir}scriptaculous/scriptaculous.js"></script>

@@ -192,7 +192,15 @@ class Brutus
 			
 			if( $_SESSION['id'] != "" )
 			{
-				$statement = "select * from messages where content like '".sqlite_escape_string ( $_SESSION['user'] ).":%' order by stamp DESC limit 20;";
+				if( stristr($GLOBALS['DSN'],"mysql") )
+				{
+					$user = addslashes($_SESSION['user']);
+				}
+				else
+				{
+					$user = sqlite_escape_string ( $_SESSION['user'] );
+				}
+				$statement = "select * from messages where content like '".$user.":%' order by stamp DESC limit 20;";
 				$messages = $this->database->query($statement);
 				if( $messages )
 				{
@@ -230,7 +238,16 @@ class Brutus
 				$mostactive_result = $this->database->fetchAll($mostactive);//->fetch(SQLITE_ASSOC);
 				$mostactive_result = array_shift($mostactive_result);
 			}
-			$statement = "select * from messages where channel = '".sqlite_escape_string ( $mostactive_result['channelName'] )."' order by stamp DESC limit 20;";
+			
+			if( stristr($GLOBALS['DSN'],"mysql") )
+			{
+				$channel = addslashes($mostactive_result['channelName']);
+			}
+			else
+			{
+				$channel = sqlite_escape_string ( $mostactive_result['channelName'] );
+			}
+			$statement = "select * from messages where channel = '".$channel."' order by stamp DESC limit 20;";
 			$mostactivelines = $this->database->query($statement);
 			if( $mostactivelines )
 			{
@@ -1004,7 +1021,7 @@ class Brutus
 								}
 								else
 								{
-									if( $processedFiles >= 500 )
+									if( $processedFiles >= 250 )
 									{
 										return;
 									}
