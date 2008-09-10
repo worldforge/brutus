@@ -18,7 +18,7 @@ class Renderable
 		$this->smarty->cache_dir = getcwd().'/cache';
 		$this->smarty->config_dir = getcwd().'/configs';
 		$this->smarty->register_modifier("word","smarty_modifier_word");
-		$this->smarty->assign("basedir",strToLower(basename(getcwd()))."/");
+		$this->smarty->assign("basedir",$GLOBALS['BASEDIR']);
 	}
 	
 	function Render()
