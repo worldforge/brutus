@@ -1013,6 +1013,7 @@ class Brutus
 								print("\nParsing file $baseFileName.<br />\n");
 								$processedFiles = $processedFiles+1;
 								$this->parseLogData( $baseFileName );
+								$this->ArchiveLog( $baseFileName );
 								if( stristr($_SERVER['REQUEST_URI'],"ajax.php") )
 								{
 									if( $processedFiles >= 2 )
@@ -1137,6 +1138,38 @@ class Brutus
 		//print("\nDone parsing $fromFile<br />\n");
  	}
  	
+ 	/**
+ 	 * @function Brutus:ArchiveLog
+ 	 * @author tingham
+ 	 * @created 9/9/08 10:26 PM
+ 	 **/
+ 	function ArchiveLog( $file )
+ 	{
+ 		if( $file != "" )
+ 		{
+ 			print("Archive Log: $file\n");
+ 			if( file_exists($file) )
+ 			{
+ 				$basename = basename ( $file );
+ 				$dirpath = str_replace($basename,"",$file);
+				$dirpath = explode("/",$dirpath);
+				$dirpath = "/".$dirpath[ sizeOf($dirpath)-3 ]."/".$dirpath[ sizeOf($dirpath)-2 ]."/";
+ 				print("Creating Folder ".$dirpath."\n");
+ 				$didmake = @mkdir ( getcwd()."/archives".$dirpath,0777,true );
+				$cachefile = md5($file);
+				$didmove = @rename ( $file, getcwd()."/archives".$dirpath.$basename );
+				if( $didmove )
+				{
+					print "\n File Relocated. \n";
+					@unlink( getcwd()."/scratch/processed/$cachefile" );
+				}
+ 			}
+ 			else
+ 			{
+ 				print "File does not exist at: $file\n";
+ 			}
+ 		}
+ 	}
  	/**
  	 * @function Brutus:parsedLogs
  	 * @return Array of files from the cache directory with mod dates.
