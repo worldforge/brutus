@@ -789,6 +789,7 @@ class Brutus
  				}
  				else
  				{
+ 					$bStoreSearch = true;
 	 				$results = $this->database->searchMessages($params['q']);
 	 			}
  				if( sizeOf($results) > 0 &&
