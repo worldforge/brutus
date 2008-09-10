@@ -1,7 +1,17 @@
 <?php
 
 require_once('DB.php');
-
+/**
+ * Brutus is the mate of Brenda. He likes to keep things organized. She is a scatterbrain.
+ * @category   Net
+ * @package    com.coalmarch.Brutus
+ * @author     Original Author <tingham@coalmarch.com>
+ * @copyright  Granted to Worldforge via Attribution (Seek Life Elsewhere Grant)
+ * @license    GNU GPLv2+
+ * @version    Release: 1.0
+ * @link       http://www.coalmarch.com/products/widgets/brutus-irc-log-parser.php
+ * @since      Class available since Release 1.0
+ */
 class Database
 {
 	var $db;

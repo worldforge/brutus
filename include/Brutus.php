@@ -17,7 +17,7 @@ require_once("Renderable.php");
  * @package    com.coalmarch.Brutus
  * @author     Original Author <tingham@coalmarch.com>
  * @copyright  Granted to Worldforge via Attribution (Seek Life Elsewhere Grant)
- * @license    http://creativecommons.org/licenses/by/2.0/ Attribution
+ * @license    GNU GPLv2+
  * @version    Release: 1.0
  * @link       http://www.coalmarch.com/products/widgets/brutus-irc-log-parser.php
  * @since      Class available since Release 1.0

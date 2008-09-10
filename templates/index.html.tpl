@@ -25,8 +25,8 @@
 				<div class="input">
 					<input type="text" name="q" id="q" value="{if $q != ""}{$q}{else}Search{/if}" {literal}onfocus="if(this.value=='Search'){this.value='';$('lower').value='';$('upper').value='';}" onblur="if(this.value==''){this.value='Search';}"{/literal} /><br />
 					<input type="hidden" name="type" id="type" value="" />
-					<input type="hidden" name="lower" id="lower" value="" />
-					<input type="hidden" name="upper" id="upper" value="" />
+					<input type="text" name="lower" id="lower" value="" />
+					<input type="text" name="upper" id="upper" value="" />
 				</div>
 			</form>
 			{include file="storedsearches.html.tpl"}
