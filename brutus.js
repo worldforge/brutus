@@ -35,13 +35,13 @@ function initialize()
 			termlists[i].style.clear = "right";
 		}
 	}
-	setTimeout("doYourPart()",5000);
+	//setTimeout("doYourPart()",5000);
 }
 function doYourPart()
 {
 	window.status = "Doing your part.";
 	var url = global_url_prefix+"stab.php";
-	var ajax = new Ajax.Request(url, {method:'get',onFailure:null,asynchronous:false});
+	var ajax = new Ajax.Request(url, {method:'get',onFailure:null,asynchronous:true});
 	var strAjaxResult = ajax.transport.responseText;
 	window.status = "Done doing your part, thanks a bunch! Have a great day.";
 }
@@ -54,71 +54,76 @@ function submitAjaxSearchForm( aForm )
 									 );
 	var strAjaxResult =	ajax.transport.responseText;
 	var body = $("body");
-	//if( strAjaxResult.indexOf("id=\"row.\"") > -1 )
-	//{
-		if( body.innerHTML.strip() == "" )
-		{
-			body.innerHTML = strAjaxResult;
-		}
-		else
-		{
-			body.innerHTML = body.innerHTML+strAjaxResult;
-			var firstItem = body.select("div")[0];
-			if( firstItem )
-			{
-				Effect.SlideUp(firstItem,{duration:2,afterFinish:function(effect){
-					effect.element.remove();
-				}
-				});
-			}
-		}
-		replaceStoredSearches();
-	//}
-	
-	return false;
-}
-function submitAjaxSearchFormExtended( aForm )
-{
-	var url = global_url_prefix+"ajax.php?verb=SearchResults&q="+aForm.q.value+((aForm.type.value!='')?"&type="+aForm.type.value:"")+((aForm.lower.value!='')?"&lower="+aForm.lower.value:"")+((aForm.upper.value!='')?"&upper="+aForm.upper.value:"");
-	// alert(url);
-	// http://ncinghams.homedns.org/brutus/ajax.php?verb=SearchResults&q=ember&type=recentChannel
-	// http://ncinghams.homedns.org/brutus/ajax.php?verb=SearchResults&q=ember&type=recentChannel&lower=Jul 17, 2008&upper=Aug 21, 2008
-	var ajax = new Ajax.Request(url, {method:'get',
-									  onFailure:null,
-									  asynchronous:false}
-									 );
-	var strAjaxResult =	ajax.transport.responseText;
-	var body = $("body");
 	if( body.innerHTML.strip() == "" )
 	{
 		body.innerHTML = strAjaxResult;
 	}
 	else
 	{
-		var items = body.select('div');
-		if( items.length == 1 )
+		var items = body.childElements();//body.select('div');
+		
+		if( items.length > 1 )
+		{
+			var i;
+			for(i=0;i<items.length;i++)
+			{
+				Effect.SlideUp(items[i].id, {afterFinish:function(effect){ effect.element.remove(); }} );
+			}
+			body.innerHTML = body.innerHTML+strAjaxResult;
+		}
+		else if( items.length == 1 )
 		{
 			body.innerHTML = body.innerHTML+strAjaxResult;
 			var firstItem = body.select("div")[0];
 			if( firstItem )
 			{
-				Effect.SlideUp(firstItem,{duration:2,afterFinish:function(effect){
-					effect.element.remove();
-				}
-				});
+				Effect.SlideUp(firstItem,{duration:1,afterFinish:function(effect){ effect.element.remove();}} );
 			}
 		}
-		else
+		// zero case already handled by ihtml test.
+	}
+	replaceStoredSearches();
+	return false;
+}
+function submitAjaxSearchFormExtended( aForm )
+{
+	var url = global_url_prefix+"ajax.php?verb=SearchResults&q="+aForm.q.value+((aForm.type.value!='')?"&type="+aForm.type.value:"")+((aForm.lower.value!='')?"&lower="+aForm.lower.value:"")+((aForm.upper.value!='')?"&upper="+aForm.upper.value:"");
+	var ajax = new Ajax.Request(url, {method:'get',
+									  onFailure:null,
+									  asynchronous:false}
+									 );
+	var strAjaxResult =	ajax.transport.responseText;
+	var body = $("body");
+	
+	if( body.innerHTML.strip() == "" )
+	{
+		body.innerHTML = strAjaxResult;
+	}
+	else
+	{
+		var items = body.childElements();//body.select('div');
+		
+		if( items.length > 1 )
 		{
-			body.innerHTML = body.innerHTML+strAjaxResult;
 			var i;
 			for(i=0;i<items.length;i++)
 			{
-				//alert(items[i].id);
-				Effect.SlideUp(items[i].id);
+				Effect.SlideUp(items[i].id, {afterFinish:function(effect){ effect.element.remove(); }} );
+			}
+			body.innerHTML = body.innerHTML+strAjaxResult;
+		}
+		else if( items.length == 1 )
+		{
+			body.innerHTML = body.innerHTML+strAjaxResult;
+			var firstItem = body.select("div")[0];
+			if( firstItem )
+			{
+				Effect.SlideUp(firstItem,{duration:1,afterFinish:function(effect){ effect.element.remove();}} );
 			}
 		}
+		// zero case already handled by ihtml test.
 	}
+	
 	replaceStoredSearches();
 	return false;
 }
@@ -148,7 +153,7 @@ function submitAjaxAccountForm(aForm)
 		var firstItem = $("accountFormWrapper"+aForm.step.value);
 		if( firstItem )
 		{
-			Effect.SlideUp(firstItem,{duration:2,afterFinish:function(effect){
+			Effect.SlideUp(firstItem,{duration:1,afterFinish:function(effect){
 				effect.element.remove();
 			}
 			});
@@ -177,7 +182,7 @@ function submitAjaxLoginForm( aForm )
 		var firstItem = $("loginForm");
 		if( firstItem )
 		{
-			Effect.SwitchOff(firstItem,{duration:2,afterFinish:function(effect){
+			Effect.SwitchOff(firstItem,{duration:1,afterFinish:function(effect){
 				effect.element.remove();
 			}
 			});
@@ -196,7 +201,7 @@ function showDisclosedItem( anItem )
 	else
 	{
 		Effect.Fade(telement,{duration:0.25});
-		Effect.Appear(Element.siblings(telement)[0],{duration:1.0});
+		Effect.Appear(Element.siblings(telement)[0],{duration:0.5});
 	}
 }
 function replaceStoredSearches()
@@ -227,7 +232,7 @@ function expandMessageRow( rowId )
 	var element = document.getElementById(rowId);
 	Element.extend(element);
 	element.preserve = strAjaxResult;
-	Effect.Fade(element,{duration:0.5,afterFinish:function(effect){
+	Effect.Fade(element,{duration:0.25,afterFinish:function(effect){
 		Element.replace(effect.element,effect.element.preserve);}});
 }
 function contractMessageRows(lastId)
@@ -241,7 +246,7 @@ function contractMessageRows(lastId)
 	rows.each(function(item){
 		if( item.id != lastId )
 		{
-			Effect.Fade(item,{duration:1});
+			Effect.Fade(item,{duration:0.5});
 			//Element.extend(item); Element.remove(item);
 		}
 	});
@@ -254,7 +259,7 @@ function contractMessageRows(lastId)
 									  asynchronous:false}
 									 );
 	var strAjaxResult =	ajax.transport.responseText;
-	Effect.Fade(replaceRow,{duration:1,afterFinish:Element.replace(replaceRow,strAjaxResult)});
+	Effect.Fade(replaceRow,{duration:.5,afterFinish:Element.replace(replaceRow,strAjaxResult)});
 }
 function submitAjaxImportCookieSearches(id, scriptFunction)
 {

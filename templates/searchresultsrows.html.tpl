@@ -15,7 +15,7 @@
 	{math equation="x+y" x=$row.stamp y=1296000 assign="lower"}
 	<tr id="row.{$row.id}{$subset}" class="{$append}{if $selectedId==$row.id} selected{/if}">
 		<td class="time">{$row.stamp|date_format:"%H:%I:%S"}</td>
-		<td class="user"><a href="javascript:$('q').value='user:{$row.user}';$('type').value='';$('lower').value='{$backward}';$('upper').value='{$forward}';submitAjaxSearchFormExtended($('searchform'));void(0);">{$row.user}</a></td>
+		<td class="user"><a href="javascript:$('q').value='user:{$row.user}';$('type').value='';$('lower').value='{$backward|date_format}';$('upper').value='{$forward|date_format}';submitAjaxSearchFormExtended($('searchform'));void(0);">{$row.user}</a></td>
 		<td class="content">
 			{if $row.content|strlen > 120 && $row.content|substr_count:" " < 8}
 				<div id="disclosure{$row.id}{$subset}" class="disclosure" style="display:none;">

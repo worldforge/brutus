@@ -301,6 +301,14 @@ div.results table tr.selected td
 {
 	background-color:#fc9;
 }
+div.results table caption
+{
+	font-size:14px;
+	line-height:32px;
+	height:32px;
+	background-color:#ddd;
+	color:#333;
+}
 div.account
 {
 	display:block;
