@@ -1,1 +1,1 @@
-<?php$GLOBALS['DSN'] = "mysql://brutus:br3ndarul3s@localhost/brutus";$GLOBALS['BASEDIR'] = "brutus/";$GLOBALS['AJAXPREFIX'] = "http://".$_SERVER['SERVER_NAME']."/".$GLOBALS['BASEDIR'];?>
+<?phprequire_once("brutus.config.dist.php");$GLOBALS['BASEDIR'] = "brutus/";$GLOBALS['AJAXPREFIX'] = "http://".$_SERVER['SERVER_NAME']."/".$GLOBALS['BASEDIR'];?>
