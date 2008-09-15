@@ -727,6 +727,10 @@ class Brutus
 								$query['attributes']['stamp <='] = intVal($upper);
 							}
 							$results = $this->database->select($query);
+							$this->renderable->assign("lower",$lower);
+							$this->renderable->assign("upper",$upper);
+							$this->renderable->assign("q",$params['q']);
+							$this->renderable->assign("type",$params['type']);
 							$renderable->smarty->assign("lower",$lower);
 							$renderable->smarty->assign("upper",$upper);
  					    	$renderable->smarty->assign("showDateControls",true);
